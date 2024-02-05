@@ -20,9 +20,10 @@ public class Attribute extends PanacheEntity {
     @Column(name = "VALUE")
     private String attibuteValue;
 
-    @ManyToOne
-    @JoinColumn(name = "PRODUCT_ID")
-    @Column(name = "PRODUCT_ID")
-    private Product product;
-
+    public Attribute toEntity(AttributeDTO dto) {
+        return new Attribute(
+                dto.attributeName(),
+                dto.attributeValue()
+        );
+    }
 }
