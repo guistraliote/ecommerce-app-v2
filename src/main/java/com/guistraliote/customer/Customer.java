@@ -1,6 +1,8 @@
 package com.guistraliote.customer;
 
 import com.guistraliote.customerAddress.CustomerAddress;
+import com.guistraliote.paymentMethod.PaymentMethod;
+import com.guistraliote.productReview.ProductReview;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -49,4 +51,18 @@ public class Customer extends PanacheEntity {
             fetch = FetchType.LAZY
     )
     private List<CustomerAddress> addresses = new ArrayList<>();
+
+    @OneToMany(
+            mappedBy = "customer",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY
+    )
+    private List<ProductReview> productReviews = new ArrayList<>();
+
+    @OneToMany(
+            mappedBy = "customer",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY
+    )
+    public List<PaymentMethod> paymentMethod = new ArrayList<>();
 }

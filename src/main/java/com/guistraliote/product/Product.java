@@ -2,6 +2,7 @@ package com.guistraliote.product;
 
 import com.guistraliote.attribute.Attribute;
 import com.guistraliote.category.Category;
+import com.guistraliote.productReview.ProductReview;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
@@ -35,6 +36,9 @@ public class Product extends PanacheEntity {
     @Column(name = "PRODUCT_PRICE")
     private Double price;
 
+    @Column(name = "IMAGE")
+    private String image;
+
     @Column(name = "STOCK_QUANTITY")
     private Integer stockQuantity;
 
@@ -55,8 +59,14 @@ public class Product extends PanacheEntity {
     private Category category;
 
     @OneToMany(
-    mappedBy = "product",
-    cascade = CascadeType.ALL,
-    fetch = FetchType.LAZY)
+        mappedBy = "product",
+        cascade = CascadeType.ALL,
+        fetch = FetchType.LAZY)
     private List<Attribute> attribute = new ArrayList<>();
+
+    @OneToMany(
+            mappedBy = "product",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY)
+    private List<ProductReview> review = new ArrayList<>();
 }
