@@ -36,6 +36,9 @@ public class Product extends PanacheEntity {
     @Column(name = "PRODUCT_PRICE")
     private Double price;
 
+    @Column(name = "IMAGE")
+    private String image;
+
     @Column(name = "STOCK_QUANTITY")
     private Integer stockQuantity;
 
