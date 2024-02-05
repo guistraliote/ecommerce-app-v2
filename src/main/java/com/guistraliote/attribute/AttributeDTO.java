@@ -1,8 +1,10 @@
 package com.guistraliote.attribute;
 
+import org.apache.kafka.common.protocol.types.Field;
+
 public record AttributeDTO(
-        Long Id,
         String attributeName,
-        String attributeValue
+        String attributeValue,
+        Boolean isActive
 ) {
 }

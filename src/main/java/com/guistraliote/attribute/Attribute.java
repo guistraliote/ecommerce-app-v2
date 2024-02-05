@@ -20,10 +20,6 @@ public class Attribute extends PanacheEntity {
     @Column(name = "VALUE")
     private String attibuteValue;
 
-    public Attribute toEntity(AttributeDTO dto) {
-        return new Attribute(
-                dto.attributeName(),
-                dto.attributeValue()
-        );
-    }
+    @Column(name = "IS_ACTIVE")
+    private Boolean isActive;
 }
