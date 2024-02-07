@@ -21,15 +21,12 @@ import java.time.LocalDateTime;
 public class Shipment extends PanacheEntity {
 
     @OneToOne
-    @Column(name = "CUSTOMER_ID")
     private Customer customer;
 
     @OneToOne
-    @Column(name = "CUSTOMER_ADDRESS_ID")
     private CustomerAddress customerAddress;
 
     @OneToOne
-    @Column(name = "ORDER_ID")
     private Order order;
 
     @Column(name = "CREATED_AT")

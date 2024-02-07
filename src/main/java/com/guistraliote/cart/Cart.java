@@ -17,14 +17,11 @@ import java.time.LocalDateTime;
 @Table(name = "CART")
 public class Cart extends PanacheEntity {
 
-    @Column(name = "PRODUCT_ID")
     @ManyToOne
     private Product product;
 
-    @Column(name = "CUSTOMER_ID")
     @OneToOne
     private Customer customer;
-
 
     LocalDateTime createdAt = LocalDateTime.now();
 
