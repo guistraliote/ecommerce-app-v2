@@ -1,12 +1,16 @@
 package com.guistraliote.attribute;
 
+import io.quarkus.panache.common.Page;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 import lombok.NonNull;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class AttributeService {
@@ -16,39 +20,49 @@ public class AttributeService {
 
     @Transactional
     @NonNull
-    public Attribute create(AttributeDTO dto) {
+    public AttributeDTO create(AttributeDTO dto) {
         Attribute attribute = toEntity(dto);
+
         attributeRepository.persist(attribute);
 
-        return attribute;
+        return toDTO(attribute);
     }
 
-    public Attribute getByName(AttributeDTO dto) {
+    public AttributeDTO getByName(AttributeDTO dto) {
         Attribute attribute = toEntity(dto);
 
-        return (Attribute) attributeRepository.getByName(attribute.getAttributeName());
+        Attribute response = (Attribute) attributeRepository.getByName(attribute.getAttributeName());
+
+        return toDTO(response);
     }
 
-    public Attribute getAllPaged(int page, int size) {
-        return (Attribute) attributeRepository.getAllPaged(page, size);
+    @Transactional
+    public List<AttributeDTO> getAllPaged(int page, int size) {
+        return attributeRepository.findAll().page(Page.of(page, size))
+                .list()
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
-    public Attribute getAllActive() {
-        return (Attribute) attributeRepository.getAllActive();
+    public AttributeDTO getAllActive() {
+        Attribute response = (Attribute) attributeRepository.getAllActive();
+
+        return toDTO(response);
     }
 
-    public Attribute getById(Long id) {
+    public AttributeDTO getById(Long id) {
         Optional<Attribute> obj = attributeRepository.findByIdOptional(id);
 
-        return obj.orElseThrow(NotFoundException::new);
+        return toDTO(obj.orElseThrow(NotFoundException::new));
     }
 
     @Transactional
     @NonNull
     public AttributeDTO update(Long id, AttributeDTO dto) {
-        Attribute entity = getById(id);
+        Attribute entity = attributeRepository.findById(id);
 
-        toEntity(dto);
+        Objects.requireNonNull(entity, "Entity not found");
 
         entity.setAttributeName(dto.attributeName());
         entity.setAttibuteValue(dto.attributeValue());
