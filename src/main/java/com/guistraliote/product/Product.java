@@ -22,7 +22,11 @@ import java.util.List;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Table(name = "PRODUCT ")
-public class Product extends PanacheEntity {
+public class Product {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @NotBlank(message = "O nome do produto não pode ser nulo")
     @Column(name = "PRODUCT_NAME")
