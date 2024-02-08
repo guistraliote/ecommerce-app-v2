@@ -6,6 +6,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.util.List;
+import java.util.Objects;
 
 @Path("/attributes")
 @Produces(MediaType.APPLICATION_JSON)
@@ -16,8 +17,10 @@ public class AttributeController {
     AttributeService attributeService;
 
     @GET
-    public Response getAllAttributes() {
-        List<AttributeDTO> attributes = attributeService.findAll();
+    @Path("/paged")
+    public Response findAllPaged(@QueryParam("pageIndex") int pageIndex, @QueryParam("pageSize") int pageSize) {
+        List<AttributeDTO> attributes = attributeService.findAllPaged(pageIndex, pageSize);
+
         return Response.ok(attributes).build();
     }
 
@@ -25,9 +28,11 @@ public class AttributeController {
     @Path("/{id}")
     public Response getAttributeById(@PathParam("id") Long id) {
         AttributeDTO attributeDTO = attributeService.findById(id);
-        if (attributeDTO != null) {
+        if (Objects.nonNull(attributeDTO)) {
+
             return Response.ok(attributeDTO).build();
         } else {
+
             return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
@@ -35,6 +40,7 @@ public class AttributeController {
     @POST
     public Response createAttribute(AttributeDTO attributeDTO) {
         AttributeDTO createdAttribute = attributeService.create(attributeDTO);
+
         return Response.status(Response.Status.CREATED).entity(createdAttribute).build();
     }
 
@@ -42,9 +48,11 @@ public class AttributeController {
     @Path("/{id}")
     public Response updateAttribute(@PathParam("id") Long id, AttributeDTO attributeDTO) {
         AttributeDTO updatedAttribute = attributeService.update(id, attributeDTO);
-        if (updatedAttribute != null) {
+        if (Objects.nonNull(updatedAttribute)) {
+
             return Response.ok(updatedAttribute).build();
         } else {
+
             return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
@@ -53,6 +61,7 @@ public class AttributeController {
     @Path("/{id}")
     public Response deleteAttribute(@PathParam("id") Long id) {
         attributeService.delete(id);
+
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 }
