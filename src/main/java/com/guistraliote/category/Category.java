@@ -1,9 +1,7 @@
 package com.guistraliote.category;
 
 import com.guistraliote.product.Product;
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.List;
@@ -11,23 +9,30 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = false)
-@Table(name = "CATEGORY")
-public class Category extends PanacheEntity {
+@AllArgsConstructor
+@Builder
+public class Category {
 
-    @NotNull(message = "A categoria não pode ser nula")
-    @Column(name = "CATEGORY_NAME", nullable = false)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "NAME")
+    @NonNull
     private String name;
 
-    @NotNull
-    @Column(name = "IS_ACTIVE", nullable = false)
-    private Boolean active;
+    @Column(name = "IS_ACTIVE")
+    private Boolean isActive;
 
-    @Column(name = "CATEGORY_PATH")
+    @Column(name = "PATH")
     private String path;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+    @OneToMany(
+            mappedBy = "category",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
     private List<Product> products;
 }
