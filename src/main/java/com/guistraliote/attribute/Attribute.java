@@ -1,25 +1,24 @@
 package com.guistraliote.attribute;
 
-import com.guistraliote.product.Product;
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = false)
-@Table(name = "ATTRIBUTE")
-public class Attribute extends PanacheEntity {
+@AllArgsConstructor
+@Builder
+public class Attribute {
 
-    @Column(name = "ATTRIBUTE_NAME")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String attributeName;
-
-    @Column(name = "VALUE")
-    private String attibuteValue;
-
-    @Column(name = "IS_ACTIVE")
+    private String attributeValue;
     private Boolean isActive;
 }

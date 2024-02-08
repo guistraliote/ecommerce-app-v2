@@ -54,7 +54,7 @@ public class Product extends PanacheEntity {
     @Column(name = "PRODUCT_UPDATE_DATE")
     LocalDateTime updateDate = LocalDateTime.now();
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CATEGORY_ID")
     private Category category;
 

@@ -1,10 +1,16 @@
 package com.guistraliote.attribute;
 
-import org.apache.kafka.common.protocol.types.Field;
+import lombok.*;
 
-public record AttributeDTO(
-        String attributeName,
-        String attributeValue,
-        Boolean isActive
-) {
+import java.time.LocalDateTime;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class AttributeDTO {
+    private Long id;
+    private String attributeName;
+    private String attributeValue;
+    private Boolean isActive;
 }

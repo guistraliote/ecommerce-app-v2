@@ -1,15 +1,14 @@
 package com.guistraliote.attribute;
 
-import io.quarkus.panache.common.Page;
+
+import com.guistraliote.attribute.exceptions.AttributeNotFoundException;
+import com.guistraliote.attribute.exceptions.InvalidAttributeNameException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
-import lombok.NonNull;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -18,82 +17,79 @@ public class AttributeService {
     @Inject
     AttributeRepository attributeRepository;
 
-    @Transactional
-    @NonNull
-    public AttributeDTO create(AttributeDTO dto) {
-        Attribute attribute = toEntity(dto);
+    public List<AttributeDTO> findAllPaged(int pageIndex, int pageSize) {
+        List<Attribute> attributes = attributeRepository.findPaged(pageIndex, pageSize);
 
-        attributeRepository.persist(attribute);
-
-        return toDTO(attribute);
-    }
-
-    public AttributeDTO getByName(AttributeDTO dto) {
-        Attribute attribute = toEntity(dto);
-
-        Attribute response = (Attribute) attributeRepository.getByName(attribute.getAttributeName());
-
-        return toDTO(response);
-    }
-
-    @Transactional
-    public List<AttributeDTO> getAllPaged(int page, int size) {
-        return attributeRepository.findAll().page(Page.of(page, size))
-                .list()
-                .stream()
-                .map(this::toDTO)
+        return attributes.stream()
+                .map(attribute -> AttributeDTO.builder()
+                        .id(attribute.getId())
+                        .attributeName(attribute.getAttributeName())
+                        .attributeValue(attribute.getAttributeValue())
+                        .isActive(attribute.getIsActive())
+                        .build())
                 .collect(Collectors.toList());
     }
 
-    public AttributeDTO getAllActive() {
-        Attribute response = (Attribute) attributeRepository.getAllActive();
+    public AttributeDTO findById(Long id) {
+        Attribute attribute = attributeRepository.findById(id);
 
-        return toDTO(response);
+        if (Objects.isNull(attribute)) {
+            throw new AttributeNotFoundException("Attribute not found for ID: " + id);
+        }
+
+        return AttributeDTO.builder()
+                .id(attribute.getId())
+                .attributeName(attribute.getAttributeName())
+                .attributeValue(attribute.getAttributeValue())
+                .isActive(attribute.getIsActive())
+                .build();
     }
 
-    public AttributeDTO getById(Long id) {
-        Optional<Attribute> obj = attributeRepository.findByIdOptional(id);
+    public AttributeDTO create(AttributeDTO attributeDTO) {
+        if (checkAttributeName(attributeDTO)) {
+            throw new InvalidAttributeNameException("Attribute name cannot be null or empty.");
+        }
 
-        return toDTO(obj.orElseThrow(NotFoundException::new));
+        Attribute attribute = Attribute.builder()
+                .attributeName(attributeDTO.getAttributeName())
+                .attributeValue(attributeDTO.getAttributeValue())
+                .isActive(attributeDTO.getIsActive())
+                .build();
+
+        attributeRepository.persist(attribute);
+
+        return attributeDTO;
     }
 
-    @Transactional
-    @NonNull
-    public AttributeDTO update(Long id, AttributeDTO dto) {
-        Attribute entity = attributeRepository.findById(id);
+    public AttributeDTO update(Long id, AttributeDTO attributeDTO) {
+        if (Objects.isNull(id)) {
+            throw new AttributeNotFoundException("Attribute ID cannot be null");
+        }
 
-        Objects.requireNonNull(entity, "Entity not found");
+        Attribute attribute = attributeRepository.findById(id);
 
-        entity.setAttributeName(dto.attributeName());
-        entity.setAttibuteValue(dto.attributeValue());
+        if (Objects.isNull(attribute)) {
+            throw new AttributeNotFoundException("Attribute not found for ID: " + id);
+        }
 
-        attributeRepository.persist(entity);
+        attribute.setAttributeName(attributeDTO.getAttributeName());
+        attribute.setAttributeValue(attributeDTO.getAttributeValue());
+        attribute.setIsActive(attributeDTO.getIsActive());
 
-        return toDTO(entity);
+        attributeRepository.persist(attribute);
+
+        return attributeDTO;
     }
 
-    @Transactional
-    public void delete(@NonNull Long id) {
-        Attribute attribute = attributeRepository
-                .findByIdOptional(id)
-                .orElseThrow(NotFoundException::new);
-
-        attributeRepository.delete(attribute);
+    public void delete(Long id) {
+        if (attributeRepository.findByIdOptional(id).isPresent()) {
+            attributeRepository.deleteById(id);
+        } else {
+            throw new AttributeNotFoundException("Attribute not found for ID: " + id);
+        }
     }
 
-    public Attribute toEntity(AttributeDTO dto) {
-        return new Attribute(
-                dto.attributeName(),
-                dto.attributeValue(),
-                dto.isActive()
-        );
-    }
-
-    public AttributeDTO toDTO(Attribute attribute) {
-        return new AttributeDTO(
-          attribute.getAttributeName(),
-          attribute.getAttibuteValue(),
-          attribute.getIsActive()
-        );
+    private Boolean checkAttributeName(AttributeDTO dto) {
+        return Objects.isNull(dto.getAttributeName()) || dto.getAttributeName().trim().isEmpty();
     }
 }
