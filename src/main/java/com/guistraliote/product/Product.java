@@ -19,7 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-@Table(name = "PRODUCT ")
+@Table(name = "PRODUCT")
 public class Product {
 
     @Id
