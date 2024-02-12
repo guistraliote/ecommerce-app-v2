@@ -17,36 +17,36 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "CUSTOMER_ORDER")
-public class Order extends PanacheEntity {
+public class Order {
 
-    LocalDateTime orderDate = LocalDateTime.now();
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
+    @Column(name = "ORDER_DATE")
+    private LocalDateTime orderDate = LocalDateTime.now();
+
+    @Column(name = "STATUS")
     private String status;
 
+    @Column(name = "TOTAL_ORDER_VALUE")
     private Double totalOrderValue;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CUSTOMER_ID")
     private Customer customer;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
-    private List<OrderItems> orderItems;
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItems> orderItems = new ArrayList<>();
 
     public void addOrderItem(OrderItems orderItem) {
-        if (Objects.isNull(orderItems)) {
-            orderItems = new ArrayList<>();
-        }
         orderItems.add(orderItem);
         orderItem.setOrder(this);
     }
 
     public void calculateTotalOrderValue() {
-        if (Objects.nonNull(orderItems)) {
-
-            this.totalOrderValue = orderItems.stream()
-                    .filter(orderItem -> Objects.nonNull(orderItem.getProduct()))
-                    .mapToDouble(orderItem -> orderItem.getProduct().getPrice() * orderItem.getQuantity())
-                    .sum();
-        }
+        this.totalOrderValue = orderItems.stream()
+                .mapToDouble(orderItem -> orderItem.getProduct().getPrice() * orderItem.getQuantity())
+                .sum();
     }
 }
