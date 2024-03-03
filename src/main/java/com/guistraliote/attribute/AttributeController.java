@@ -16,6 +16,9 @@ public class AttributeController {
     @Inject
     AttributeService attributeService;
 
+    @Inject
+    AttributeGateway attributeGateway;
+
     @GET
     @Path("/paged")
     public Response findAllPaged(@QueryParam("pageIndex") int pageIndex, @QueryParam("pageSize") int pageSize) {
@@ -39,29 +42,24 @@ public class AttributeController {
 
     @POST
     public Response createAttribute(AttributeDTO attributeDTO) {
-        AttributeDTO createdAttribute = attributeService.create(attributeDTO);
+        attributeGateway.sendPostAttributeToQueue(attributeDTO);
 
-        return Response.status(Response.Status.CREATED).entity(createdAttribute).build();
+        return Response.status(Response.Status.CREATED).build();
     }
 
     @PUT
     @Path("/{id}")
     public Response updateAttribute(@PathParam("id") Long id, AttributeDTO attributeDTO) {
-        AttributeDTO updatedAttribute = attributeService.update(id, attributeDTO);
-        if (Objects.nonNull(updatedAttribute)) {
+        attributeGateway.sendPutAttributeToQueue(attributeDTO);
 
-            return Response.ok(updatedAttribute).build();
-        } else {
-
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
+        return Response.ok().build();
     }
 
     @DELETE
     @Path("/{id}")
     public Response deleteAttribute(@PathParam("id") Long id) {
-        attributeService.delete(id);
+        attributeGateway.sendDeleteAttributeToQueue(id);
 
-        return Response.status(Response.Status.NO_CONTENT).build();
+        return Response.noContent().build();
     }
 }
