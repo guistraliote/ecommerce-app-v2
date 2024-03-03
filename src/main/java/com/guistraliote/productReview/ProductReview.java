@@ -2,7 +2,6 @@ package com.guistraliote.productReview;
 
 import com.guistraliote.customer.Customer;
 import com.guistraliote.product.Product;
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,23 +13,27 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-@Table(name = "PRODUCT_REVIEW ")
-public class ProductReview extends PanacheEntity {
+@Table(name = "PRODUCT_REVIEW")
+public class ProductReview{
 
-    @Column(name = "PRODUCT_REVIEW")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "REVIEW")
     private String review;
 
-    @Column(name = "REVIEW_POST_DATE")
-    LocalDateTime postDate = LocalDateTime.now();
+    @Column(name = "POST_DATE")
+    private LocalDateTime postDate = LocalDateTime.now();
 
-    @Column(name = "REVIEW_RATE_ID")
+    @Column(name = "REVIEW_RATE")
     private Integer reviewRate;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "PRODUCT_ID")
+    @JoinColumn(name = "product_id")
     private Product product;
 
     @ManyToOne
-    @JoinColumn(name = "CUSTOMER_ID")
+    @JoinColumn(name = "customer_id")
     private Customer customer;
 }

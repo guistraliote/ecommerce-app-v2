@@ -4,8 +4,10 @@ import com.guistraliote.customer.Customer;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -13,13 +15,17 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = false)
-@Table(name = "PAYMENT_METHOD ")
-public class PaymentMethod extends PanacheEntity {
+@EqualsAndHashCode
+@Table(name = "PAYMENT_METHOD")
+public class PaymentMethod {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long Id;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "PAYMENT_TYPE")
     @NotBlank(message = "O método não pode ser nulo")
-    @Enumerated(EnumType.STRING)
     private PaymentTypes type;
 
     @Column(name = "CREDIT_CARD_BRAND")
@@ -32,13 +38,14 @@ public class PaymentMethod extends PanacheEntity {
     private String cardHolder;
 
     @Column(name = "EXPIRATION_DATE")
-    private Date expirationDate;
+    private LocalDate expirationDate;
 
     @Column(name = "SECURITY_CODE")
     private Integer securityCode;
 
+    @NotNull
     @Column(name = "IS_ACTIVE")
-    private Boolean active;
+    private Boolean active = true;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "CUSTOMER_ID", nullable = false)

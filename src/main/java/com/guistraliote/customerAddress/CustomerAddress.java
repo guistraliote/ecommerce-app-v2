@@ -1,7 +1,6 @@
 package com.guistraliote.customerAddress;
 
 import com.guistraliote.customer.Customer;
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,7 +11,11 @@ import lombok.*;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Table(name = "CUSTOMER_ADDRESS")
-public class CustomerAddress extends PanacheEntity {
+public class CustomerAddress {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "ADDRESS_NAME")
     private String AddressName;

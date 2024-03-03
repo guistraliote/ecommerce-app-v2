@@ -1,9 +1,6 @@
 package com.guistraliote.attribute;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 
@@ -18,7 +15,13 @@ public class Attribute {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "ATTRIBUTE_NAME")
     private String attributeName;
+
+    @Column(name = "VALUE")
     private String attributeValue;
+
+    @Column(name = "IS_ACTIVE")
     private Boolean isActive;
 }

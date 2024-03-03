@@ -1,11 +1,11 @@
 package com.guistraliote.category;
 
-import com.guistraliote.queue.Queues;
-import io.smallrye.mutiny.Uni;
+import com.guistraliote.topics.Topics;
+import io.smallrye.common.annotation.Blocking;
+import io.smallrye.reactive.messaging.kafka.Record;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
-
 
 @ApplicationScoped
 public class CategoryConsumer {
@@ -13,18 +13,24 @@ public class CategoryConsumer {
     @Inject
     CategoryService categoryService;
 
-    @Incoming(Queues.CREATE_CATEGORY_QUEUE)
-    public Uni<Void> receiveCreate(CategoryDTO categoryDTO) {
-        return categoryService.createAsync(categoryDTO);
+    @Incoming(Topics.CREATE_CATEGORY_TOPIC)
+    @Blocking
+    public void receiveCreate(Record<String, CategoryDTO> record) {
+        CategoryDTO categoryDTO = record.value();
+        categoryService.create(categoryDTO);
     }
 
-    @Incoming(Queues.UPDATE_CATEGORY_QUEUE)
-    public Uni<Void> receiveUpdate(CategoryDTO categoryDTO) {
-        return categoryService.updateAsync(categoryDTO.getId(), categoryDTO);
+    @Incoming(Topics.UPDATE_CATEGORY_TOPIC)
+    @Blocking
+    public void receiveUpdate(Record<String, CategoryDTO> record) {
+        CategoryDTO categoryDTO = record.value();
+        categoryService.update(categoryDTO.getId(), categoryDTO);
     }
 
-    @Incoming(Queues.DELETE_CATEGORY_QUEUE)
-    public Uni<Void> receiveDelete(Long id) {
-        return categoryService.deleteAsync(id);
+    @Incoming(Topics.DELETE_CATEGORY_TOPIC)
+    @Blocking
+    public void receiveDelete(Record<String, Long> record) {
+        Long id = record.value();
+        categoryService.delete(id);
     }
 }

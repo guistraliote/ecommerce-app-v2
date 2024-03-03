@@ -1,7 +1,7 @@
 package com.guistraliote.category;
 
-
-import com.guistraliote.queue.Queues;
+import com.guistraliote.topics.Topics;
+import io.smallrye.reactive.messaging.kafka.Record;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.reactive.messaging.Channel;
@@ -11,26 +11,26 @@ import org.eclipse.microprofile.reactive.messaging.Emitter;
 public class CategoryProducer {
 
     @Inject
-    @Channel(Queues.CREATE_CATEGORY_QUEUE)
-    Emitter<CategoryDTO> createEmitter;
+    @Channel(Topics.CREATE_CATEGORY_TOPIC)
+    Emitter<Record<String, CategoryDTO>> createEmitter;
 
     @Inject
-    @Channel(Queues.UPDATE_CATEGORY_QUEUE)
-    Emitter<CategoryDTO> updateEmitter;
+    @Channel(Topics.UPDATE_CATEGORY_TOPIC)
+    Emitter<Record<String, CategoryDTO>> updateEmitter;
 
     @Inject
-    @Channel(Queues.DELETE_CATEGORY_QUEUE)
-    Emitter<Long> deleteEmitter;
+    @Channel(Topics.DELETE_CATEGORY_TOPIC)
+    Emitter<Record<String, Long>> deleteEmitter;
 
     public void sendCreate(CategoryDTO categoryDTO) {
-        createEmitter.send(categoryDTO);
+        createEmitter.send(Record.of(categoryDTO.toString(), categoryDTO));
     }
 
     public void sendUpdate(CategoryDTO categoryDTO) {
-        updateEmitter.send(categoryDTO);
+        updateEmitter.send(Record.of(categoryDTO.getId().toString(), categoryDTO));
     }
 
     public void sendDelete(Long id) {
-        deleteEmitter.send(id);
+        deleteEmitter.send(Record.of(id.toString(), id));
     }
 }

@@ -3,7 +3,6 @@ package com.guistraliote.product;
 import com.guistraliote.attribute.Attribute;
 import com.guistraliote.category.Category;
 import com.guistraliote.productReview.ProductReview;
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -12,7 +11,6 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -21,23 +19,27 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-@Table(name = "PRODUCT ")
+@Table(name = "PRODUCT")
 public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "O nome do produto não pode ser nulo")
-    @Column(name = "PRODUCT_NAME")
-    private String name;
+    @NotBlank(message = "O título do produto não pode ser nulo")
+    @Column(name = "TITLE")
+    private String title;
 
-    @Column(name = "PRODUCT_DESCRIPTION")
+    @NotBlank(message = "O SKU não pode ser nulo")
+    @Column(name = "SKU")
+    private String sku;
+
+    @Column(name = "DESCRIPTION")
     private String description;
 
     @NotNull(message = "O preço do produto não pode ser nulo")
     @DecimalMin(value = "0.0", inclusive = false, message = "O preço do produto deve ser maior que zero")
-    @Column(name = "PRODUCT_PRICE")
+    @Column(name = "PRICE")
     private Double price;
 
     @Column(name = "IMAGE")
@@ -46,31 +48,26 @@ public class Product {
     @Column(name = "STOCK_QUANTITY")
     private Integer stockQuantity;
 
-    @Column(name = "PRODUCT_BRAND")
+    @Column(name = "BRAND")
     private String brand;
 
-    @Column(name = "PRODUCT_WEIGHT")
+    @Column(name = "WEIGHT")
     private Double weight;
 
-    @Column(name = "PRODUCT_ADD_DATE")
-    private Date addDate;
+    @Column(name = "ADD_DATE")
+    LocalDateTime addDate = LocalDateTime.now();
 
-    @Column(name = "PRODUCT_UPDATE_DATE")
+    @Column(name = "UPDATE_DATE")
     LocalDateTime updateDate = LocalDateTime.now();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CATEGORY_ID")
+    @JoinColumn(name = "category_id")
     private Category category;
 
-    @OneToMany(
-        mappedBy = "product",
-        cascade = CascadeType.ALL,
-        fetch = FetchType.LAZY)
-    private List<Attribute> attribute = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinColumn(name = "product_id")
+    private List<Attribute> attributes = new ArrayList<>();
 
-    @OneToMany(
-            mappedBy = "product",
-            cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY)
-    private List<ProductReview> review = new ArrayList<>();
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<ProductReview> reviews = new ArrayList<>();
 }

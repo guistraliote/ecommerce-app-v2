@@ -21,24 +21,32 @@ import java.util.List;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Table(name = "CUSTOMER")
-public class Customer extends PanacheEntity {
+public class Customer{
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @NotBlank(message = "O nome é obrigatório")
-    @Column(name = "CLIENT_NAME")
+    @Column(name = "NAME")
     private String name;
+
+    @NotBlank(message = "O sobrenome é obrigatório")
+    @Column(name = "LAST_NAME")
+    private String lastName;
 
     @NotBlank(message = "O CPF é obrigatório")
     @Pattern(regexp = "\\d{11}", message = "O CPF deve ter 11 dígitos numéricos")
-    @Column(name = "CLIENT_CPF")
+    @Column(name = "CPF")
     private String cpf;
 
     @NotBlank(message = "O e-mail é obrigatório")
     @Email(message = "Formato de e-mail inválido")
-    @Column(name = "CLIENT_EMAIL")
+    @Column(name = "EMAIL")
     private String email;
 
     @NotBlank(message = "O telefone é obrigatório")
-    @Column(name = "CLIENT_PHONE")
+    @Column(name = "PHONE")
     private String phone;
 
     @NotNull

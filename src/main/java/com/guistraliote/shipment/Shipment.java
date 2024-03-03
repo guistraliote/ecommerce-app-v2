@@ -3,7 +3,6 @@ package com.guistraliote.shipment;
 import com.guistraliote.customer.Customer;
 import com.guistraliote.customerAddress.CustomerAddress;
 import com.guistraliote.order.Order;
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,20 +17,27 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "SHIPMENT")
-public class Shipment extends PanacheEntity {
+public class Shipment {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @OneToOne
+    @JoinColumn(name = "customer_id")
     private Customer customer;
 
     @OneToOne
+    @JoinColumn(name = "customer_address_id")
     private CustomerAddress customerAddress;
 
     @OneToOne
+    @JoinColumn(name = "order_id")
     private Order order;
 
     @Column(name = "CREATED_AT")
-    LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "UPDATED_AT")
-    LocalDateTime UpdatedAt = LocalDateTime.now();
+    private LocalDateTime updatedAt = LocalDateTime.now();
 }

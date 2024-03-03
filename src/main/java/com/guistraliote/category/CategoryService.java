@@ -1,15 +1,11 @@
 package com.guistraliote.category;
 
-import com.guistraliote.attribute.AttributeDTO;
-import com.guistraliote.attribute.exceptions.AttributeNotFoundException;
-import com.guistraliote.attribute.exceptions.InvalidAttributeNameException;
 import com.guistraliote.category.exceptions.CategoryNotFoundException;
 import com.guistraliote.category.exceptions.InvalidCategoryNameException;
 import com.guistraliote.product.Product;
-import io.smallrye.mutiny.Uni;
-import io.smallrye.mutiny.infrastructure.Infrastructure;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -57,13 +53,8 @@ public class CategoryService {
                 .build();
     }
 
-    public Uni<Void> createAsync(CategoryDTO categoryDTO) {
-        return Uni.createFrom().voidItem()
-                .onItem().invoke(() -> create(categoryDTO))
-                .runSubscriptionOn(Infrastructure.getDefaultWorkerPool());
-    }
-
-    public void create(CategoryDTO categoryDTO) {
+    @Transactional
+    public CategoryDTO create(CategoryDTO categoryDTO) {
         if (checkCategoryName(categoryDTO)) {
             throw new InvalidCategoryNameException("Category name cannot be null or empty.");
         }
@@ -76,15 +67,10 @@ public class CategoryService {
 
         categoryRepository.persist(category);
 
+        return categoryDTO;
     }
 
-    public Uni<Void> updateAsync(Long id, CategoryDTO categoryDTO) {
-        return Uni.createFrom().voidItem()
-                .onItem().invoke(() -> update(id, categoryDTO))
-                .runSubscriptionOn(Infrastructure.getDefaultWorkerPool());
-    }
-
-    public void update (Long id, CategoryDTO categoryDTO) {
+    public CategoryDTO update (Long id, CategoryDTO categoryDTO) {
         if (Objects.isNull(id)) {
             throw new CategoryNotFoundException("Category ID cannot be null");
         }
@@ -100,20 +86,18 @@ public class CategoryService {
         category.setPath(categoryDTO.getPath());
 
         categoryRepository.persist(category);
+
+        return categoryDTO;
     }
 
-    public Uni<Void> deleteAsync(Long id) {
-        return Uni.createFrom().voidItem()
-                .onItem().invoke(() -> delete(id))
-                .runSubscriptionOn(Infrastructure.getDefaultWorkerPool());
-    }
-
-    public void delete(Long id) {
+    public Long delete(Long id) {
         if (categoryRepository.findByIdOptional(id).isPresent()) {
             categoryRepository.deleteById(id);
         } else {
             throw new CategoryNotFoundException("Category not found for ID: " + id);
         }
+
+        return null;
     }
 
     private Boolean checkCategoryName(CategoryDTO dto) {
