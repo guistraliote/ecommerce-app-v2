@@ -27,7 +27,7 @@ public class CategoryController {
 
     @GET
     @Path("/{id}")
-    public Response findById(Long id) {
+    public Response findById(@PathParam("id") Long id) {
         CategoryDTO category = categoryService.findById(id);
 
         return Response.ok(category).build();
@@ -48,7 +48,8 @@ public class CategoryController {
     }
 
     @DELETE
-    public Response delete(Long id) {
+    @Path("/{id}")
+    public Response delete(@PathParam("id") Long id) {
         categoryGateway.sendDeleteCategoryToQueue(id);
 
         return Response.noContent().build();
