@@ -6,6 +6,7 @@ import com.guistraliote.attribute.exceptions.AttributeNotFoundException;
 import com.guistraliote.category.Category;
 import com.guistraliote.category.CategoryRepository;
 import com.guistraliote.category.exceptions.CategoryNotFoundException;
+import com.guistraliote.product.exceptions.ProductNotFoundException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -61,6 +62,22 @@ public class ProductService {
         return products.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+    public ProductDTO findBySku(String sku) {
+        Product product = productRepository.findBySku(sku);
+        if (Objects.nonNull(product)) {
+            return convertToDTO(product);
+        }
+        throw new ProductNotFoundException("Product sku " + sku + " not found.");
+    }
+
+    public ProductDTO findByTitle(String title) {
+        Product product = productRepository.findByTitle(title);
+        if (Objects.nonNull(title)) {
+            return convertToDTO(product);
+        }
+        throw new ProductNotFoundException("Product " + title + " not found.");
     }
 
     private Product convertToEntity(ProductDTO productDTO) {

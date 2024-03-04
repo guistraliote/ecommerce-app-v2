@@ -23,4 +23,12 @@ public class ProductRepository implements PanacheRepository<Product> {
                 .setMaxResults(pageSize)
                 .getResultList();
     }
+
+    public Product findBySku(String sku) {
+        return find("sku", sku).firstResult();
+    }
+
+    public Product findByTitle(String title) {
+        return find("title", title).firstResult();
+    }
 }
