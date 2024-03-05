@@ -10,6 +10,7 @@ import com.guistraliote.product.exceptions.ProductNotFoundException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.core.Response;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -31,29 +32,31 @@ public class ProductService {
     CategoryRepository categoryRepository;
 
     @Transactional
-    public Product create(ProductDTO productDTO, Set<Long> attributeIds, Long categoryId) {
+    public ProductDTO create(ProductDTO productDTO) {
         Product product = convertToEntity(productDTO);
 
-        Category category = categoryRepository.findById(categoryId);
-        if (Objects.nonNull(category)) {
-            product.setCategory(category);
-        } else {
-            throw new CategoryNotFoundException("Categoria não encontrada para o ID: " + categoryId);
-        }
-
-        Set<Attribute> attributes = new HashSet<>();
-        for (Long attributeId : attributeIds) {
-            Attribute attribute = attributeRepository.findById(attributeId);
-            if (Objects.nonNull(attribute)) {
-                attributes.add(attribute);
-            } else {
-                throw new AttributeNotFoundException("Atributo não encontrado para o ID: " + attributeId);
+        if (Objects.nonNull(productDTO.getCategoryId())) {
+            Category category = categoryRepository.findById(productDTO.getCategoryId());
+            if (Objects.isNull(category)) {
+                throw new CategoryNotFoundException("Category not found for ID: " + productDTO.getCategoryId());
             }
+            product.setCategory(category);
         }
-        product.setAttributes(attributes);
 
+        if (Objects.nonNull(productDTO.getAttributeIds()) && !productDTO.getAttributeIds().isEmpty()) {
+            Set<Attribute> attributes = new HashSet<>();
+            for (Long attributeId : productDTO.getAttributeIds()) {
+                Attribute attribute = attributeRepository.findById(attributeId);
+                if (attribute == null) {
+                    throw new AttributeNotFoundException("Attribute not found for ID: " + attributeId);
+                }
+                attributes.add(attribute);
+            }
+            product.setAttributes(attributes);
+        }
         productRepository.persist(product);
-        return product;
+
+        return convertToDTO(product);
     }
 
     public List<ProductDTO> findAllPaged(int pageIndex, int pageSize) {
@@ -78,6 +81,37 @@ public class ProductService {
             return convertToDTO(product);
         }
         throw new ProductNotFoundException("Product " + title + " not found.");
+    }
+
+    @Transactional
+    public ProductDTO updateProduct(Long id, ProductDTO productDTO) {
+        Product product = productRepository.findById(productDTO.getId());
+        if (Objects.isNull(product)) {
+            throw new ProductNotFoundException("Product not found for ID: " + productDTO.getId());
+        }
+
+        product.setTitle(productDTO.getTitle());
+        product.setSku(productDTO.getSku());
+        product.setDescription(productDTO.getDescription());
+        product.setPrice(productDTO.getPrice());
+        product.setImage(productDTO.getImage());
+        product.setStockQuantity(productDTO.getStockQuantity());
+        product.setBrand(productDTO.getBrand());
+        product.setWeight(productDTO.getWeight());
+        product.setUpdateDate(productDTO.getUpdateDate());
+
+        productRepository.persist(product);
+
+        return convertToDTO(product);
+    }
+
+    public Response delete(Long id) {
+        if (productRepository.findByIdOptional(id).isEmpty()) {
+            throw new ProductNotFoundException("Cannot find product ID: " + id);
+        }
+        productRepository.deleteById(id);
+
+        return Response.noContent().build();
     }
 
     private Product convertToEntity(ProductDTO productDTO) {

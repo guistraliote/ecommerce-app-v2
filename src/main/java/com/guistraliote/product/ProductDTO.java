@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -22,4 +23,6 @@ public class ProductDTO {
     private String brand;
     private Double weight;
     LocalDateTime updateDate = LocalDateTime.now();
+    private Set<Long> attributeIds;
+    private Long categoryId;
 }
