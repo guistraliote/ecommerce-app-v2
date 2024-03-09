@@ -1,6 +1,5 @@
 package com.guistraliote.category;
 
-import com.guistraliote.attribute.Attribute;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Page;
 import jakarta.enterprise.context.ApplicationScoped;
