@@ -16,7 +16,7 @@ public class CategoryController {
     CategoryService categoryService;
 
     @Inject
-    CategoryGateway categoryGateway;
+    CategoryPublisher categoryPublisher;
 
     @GET
     public Response findAllPaged(@QueryParam("pageIndex") int pageIndex, @QueryParam("pageSize") int pageSize) {
@@ -35,14 +35,14 @@ public class CategoryController {
 
     @POST
     public Response createCategory(CategoryDTO dto) {
-        categoryGateway.sendPostCategoryToQueue(dto);
+        categoryPublisher.sendPostCategoryToQueue(dto);
 
        return Response.status(Response.Status.CREATED).build();
     }
 
     @PUT
     public Response updateCategory(@QueryParam("id") Long id, CategoryDTO dto) {
-        categoryGateway.sendPutCategoryToQueue(dto);
+        categoryPublisher.sendPutCategoryToQueue(dto);
 
         return Response.ok().build();
     }
@@ -50,7 +50,7 @@ public class CategoryController {
     @DELETE
     @Path("/{id}")
     public Response delete(@PathParam("id") Long id) {
-        categoryGateway.sendDeleteCategoryToQueue(id);
+        categoryPublisher.sendDeleteCategoryToQueue(id);
 
         return Response.noContent().build();
     }

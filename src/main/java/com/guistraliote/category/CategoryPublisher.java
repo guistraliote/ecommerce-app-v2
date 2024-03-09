@@ -4,7 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 @ApplicationScoped
-public class CategoryGateway {
+public class CategoryPublisher {
 
     @Inject
     CategoryProducer categoryProducer;
