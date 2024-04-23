@@ -3,12 +3,20 @@ package com.guistraliote.attribute;
 
 import com.guistraliote.attribute.exceptions.AttributeNotFoundException;
 import com.guistraliote.attribute.exceptions.InvalidAttributeNameException;
+import com.guistraliote.attribute.Attribute;
+import com.guistraliote.attribute.AttributeDTO;
+import com.guistraliote.attribute.exceptions.AttributeNotFoundException;
+import com.guistraliote.attribute.Attribute;
+import com.guistraliote.attribute.AttributeDTO;
+import com.guistraliote.attribute.exceptions.InvalidAttributeNameException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.NotFoundException;
+import org.modelmapper.ModelMapper;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -17,48 +25,32 @@ public class AttributeService {
     @Inject
     AttributeRepository attributeRepository;
 
+    @Inject
+    ModelMapper mapper;
+
     public List<AttributeDTO> findAllPaged(int pageIndex, int pageSize) {
         List<Attribute> attributes = attributeRepository.findPaged(pageIndex, pageSize);
 
         return attributes.stream()
-                .map(attribute -> AttributeDTO.builder()
-                        .id(attribute.getId())
-                        .attributeName(attribute.getAttributeName())
-                        .attributeValue(attribute.getAttributeValue())
-                        .isActive(attribute.getIsActive())
-                        .build())
+                .map(attribute -> mapper.map(attribute, AttributeDTO.class))
                 .collect(Collectors.toList());
     }
 
     public AttributeDTO findById(Long id) {
-        Attribute attribute = attributeRepository.findById(id);
+        Optional<Attribute> attribute = Optional.ofNullable(attributeRepository.findByIdOptional(id)
+                .orElseThrow(() -> new AttributeNotFoundException("Attribute not found for ID: " + id)));
 
-        if (Objects.isNull(attribute)) {
-            throw new AttributeNotFoundException("Attribute not found for ID: " + id);
-        }
-
-        return AttributeDTO.builder()
-                .id(attribute.getId())
-                .attributeName(attribute.getAttributeName())
-                .attributeValue(attribute.getAttributeValue())
-                .isActive(attribute.getIsActive())
-                .build();
+        return mapper.map(attribute, AttributeDTO.class);
     }
 
     public AttributeDTO create(AttributeDTO attributeDTO) {
         if (checkAttributeName(attributeDTO)) {
             throw new InvalidAttributeNameException("Attribute name cannot be null or empty.");
         }
-
-        Attribute attribute = Attribute.builder()
-                .attributeName(attributeDTO.getAttributeName())
-                .attributeValue(attributeDTO.getAttributeValue())
-                .isActive(attributeDTO.getIsActive())
-                .build();
-
+        Attribute attribute = mapper.map(attributeDTO, Attribute.class);
         attributeRepository.persist(attribute);
 
-        return attributeDTO;
+        return mapper.map(attribute, AttributeDTO.class);
     }
 
     public AttributeDTO update(Long id, AttributeDTO attributeDTO) {

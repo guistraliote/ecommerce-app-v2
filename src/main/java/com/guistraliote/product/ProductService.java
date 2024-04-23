@@ -11,8 +11,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Response;
+import org.modelmapper.ModelMapper;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -31,9 +31,12 @@ public class ProductService {
     @Inject
     CategoryRepository categoryRepository;
 
+    @Inject
+    ModelMapper mapper;
+
     @Transactional
     public ProductDTO create(ProductDTO productDTO) {
-        Product product = convertToEntity(productDTO);
+        Product product = mapper.map(productDTO, Product.class);
 
         if (Objects.nonNull(productDTO.getCategoryId())) {
             Category category = categoryRepository.findById(productDTO.getCategoryId());
@@ -43,11 +46,11 @@ public class ProductService {
             product.setCategory(category);
         }
 
-        if (Objects.nonNull(productDTO.getAttributeIds()) && !productDTO.getAttributeIds().isEmpty()) {
+        if (checkNullableAttribute(productDTO)) {
             Set<Attribute> attributes = new HashSet<>();
             for (Long attributeId : productDTO.getAttributeIds()) {
                 Attribute attribute = attributeRepository.findById(attributeId);
-                if (attribute == null) {
+                if (Objects.isNull(attribute)) {
                     throw new AttributeNotFoundException("Attribute not found for ID: " + attributeId);
                 }
                 attributes.add(attribute);
@@ -56,21 +59,21 @@ public class ProductService {
         }
         productRepository.persist(product);
 
-        return convertToDTO(product);
+        return mapper.map(product, ProductDTO.class);
     }
 
-    public List<ProductDTO> findAllPaged(int pageIndex, int pageSize) {
-        List<Product> products = productRepository.findPaged(pageIndex, pageSize);
+    public List<ProductDTO> findAllPaged(int index, int pageSize) {
+        List<Product> products = productRepository.findPaged(index, pageSize);
 
         return products.stream()
-                .map(this::convertToDTO)
+                .map(product -> mapper.map(product, ProductDTO.class))
                 .collect(Collectors.toList());
     }
 
     public ProductDTO findBySku(String sku) {
         Product product = productRepository.findBySku(sku);
         if (Objects.nonNull(product)) {
-            return convertToDTO(product);
+            return mapper.map(product, ProductDTO.class);
         }
         throw new ProductNotFoundException("Product sku " + sku + " not found.");
     }
@@ -78,7 +81,7 @@ public class ProductService {
     public ProductDTO findByTitle(String title) {
         Product product = productRepository.findByTitle(title);
         if (Objects.nonNull(title)) {
-            return convertToDTO(product);
+            return mapper.map(product, ProductDTO.class);
         }
         throw new ProductNotFoundException("Product " + title + " not found.");
     }
@@ -86,6 +89,7 @@ public class ProductService {
     @Transactional
     public ProductDTO updateProduct(Long id, ProductDTO productDTO) {
         Product product = productRepository.findById(productDTO.getId());
+
         if (Objects.isNull(product)) {
             throw new ProductNotFoundException("Product not found for ID: " + productDTO.getId());
         }
@@ -102,7 +106,7 @@ public class ProductService {
 
         productRepository.persist(product);
 
-        return convertToDTO(product);
+        return mapper.map(product, ProductDTO.class);
     }
 
     public Response delete(Long id) {
@@ -114,34 +118,7 @@ public class ProductService {
         return Response.noContent().build();
     }
 
-    private Product convertToEntity(ProductDTO productDTO) {
-        return Product.builder()
-                .id(productDTO.getId())
-                .title(productDTO.getTitle())
-                .sku(productDTO.getSku())
-                .description(productDTO.getDescription())
-                .price(productDTO.getPrice())
-                .image(productDTO.getImage())
-                .stockQuantity(productDTO.getStockQuantity())
-                .brand(productDTO.getBrand())
-                .weight(productDTO.getWeight())
-                .addDate(LocalDateTime.now())
-                .updateDate(productDTO.getUpdateDate())
-                .build();
-    }
-
-    private ProductDTO convertToDTO(Product product) {
-        return ProductDTO.builder()
-                .id(product.getId())
-                .title(product.getTitle())
-                .sku(product.getSku())
-                .description(product.getDescription())
-                .price(product.getPrice())
-                .image(product.getImage())
-                .stockQuantity(product.getStockQuantity())
-                .brand(product.getBrand())
-                .weight(product.getWeight())
-                .updateDate(product.getUpdateDate())
-                .build();
+    private Boolean checkNullableAttribute(ProductDTO dto) {
+       return Objects.nonNull(dto.getAttributeIds()) && !dto.getAttributeIds().isEmpty();
     }
 }

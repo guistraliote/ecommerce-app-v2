@@ -16,6 +16,7 @@ import java.util.Objects;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Table(name = "CUSTOMER_ORDER")
 public class Order {
 
